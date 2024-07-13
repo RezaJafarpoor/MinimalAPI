@@ -2,7 +2,6 @@
 using MinimalAPI.Entities;
 using MinimalAPI.Persistence;
 using MinimalAPI.Repositories.Interfaces;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Internal;
 
 namespace MinimalAPI.Repositories;
 
@@ -16,15 +15,11 @@ public class BookRepository : IBookRepository
     }
     public async Task<bool> CreateAsync(Book entity)
     {
-        var book =  await _dbContext.Books.FirstOrDefaultAsync(b => b.Isbn == entity.Isbn);
-        if (book is not null)
-        {
-            return false;
-        }
+        
 
         await _dbContext.Books.AddAsync(entity);
         
-        return true;
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<Book?> GetByIsbnAsync(string isbn)
